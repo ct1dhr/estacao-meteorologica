@@ -1,157 +1,56 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Estação Meteorológica - António</title>
+  <title>Estação Meteorológica CT1DHR</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f4f4f4;
-      color: #333;
-    }
-
-    canvas {
-      width: 100%;
-      max-width: 600px;
-      margin: 20px auto;
-      display: block;
-      background-color: #fff;
-      border: 1px solid #ccc;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    #compass {
-      width: 150px;
-      height: 150px;
-      margin: 20px auto;
-      position: relative;
-    }
-
-    #arrow {
-      width: 0;
-      height: 0;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform-origin: bottom center;
-      transition: transform 0.5s ease-in-out;
-      z-index: 1;
-    }
-
-    #direcaoTexto {
-      text-align: center;
-      font-size: 1.2em;
-      margin-top: 10px;
-    }
-
-    @media screen and (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-
-      canvas {
-        max-width: 100%;
-      }
-    }
-  </style>
 </head>
 <body>
-  <h1>🌤️ Estação Meteorológica - Castelo Branco</h1>
+  <header>
+    <h1>🌤️ Estação Meteorológica - CT1DHR</h1>
+    <p>Castelo Branco, Portugal</p>
+  </header>
 
-  <canvas id="tempChart" width="600" height="300"></canvas>
-  <canvas id="chuvaChart" width="600" height="300"></canvas>
-  <canvas id="ventoChart" width="600" height="300"></canvas>
+  <section class="cards">
+    <div class="card" id="card-temp">🌡️ Temperatura</div>
+    <div class="card" id="card-hum">💧 Humidade</div>
+    <div class="card" id="card-pres">📈 Pressão</div>
+    <div class="card" id="card-iaq">🌫️ Qualidade do Ar</div>
+    <div class="card" id="card-chuva">🌧️ Chuva</div>
+    <div class="card" id="card-vento">💨 Vento</div>
+    <div class="card" id="card-direcao">🧭 Direção</div>
+  </section>
 
-  <h2>🧭 Direção do Vento</h2>
-  <div id="compass">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Compass_Rose_English_North.svg/200px-Compass_Rose_English_North.svg.png" alt="Rosa dos Ventos" style="width:100%; height:100%; position:absolute; z-index:0;">
-    <div id="arrow">
-      <svg width="20" height="100" viewBox="0 0 20 100">
-        <polygon points="10,0 20,100 0,100" fill="red"/>
-      </svg>
+  <section class="graficos">
+    <canvas id="tempChart"></canvas>
+    <canvas id="humChart"></canvas>
+    <canvas id="presChart"></canvas>
+    <canvas id="iaqChart"></canvas>
+    <canvas id="chuvaChart"></canvas>
+    <canvas id="ventoChart"></canvas>
+  </section>
+
+  <section class="bussola">
+    <h2>🧭 Direção do Vento</h2>
+    <div id="compass">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Compass_Rose_English_North.svg/200px-Compass_Rose_English_North.svg.png" alt="Rosa dos Ventos CT1DHR">
+      <div id="arrow">
+        <svg width="20" height="100" viewBox="0 0 20 100">
+          <polygon points="10,0 20,100 0,100" fill="red"/>
+        </svg>
+      </div>
     </div>
-  </div>
-  <p id="direcaoTexto"></p>
+    <p id="direcaoTexto"></p>
+  </section>
 
-  <script>
-    const channelID = "3118227";
-    const campos = { temperatura: 1, chuva: 5, vento: 6, direcao: 7 };
+  <footer>
+    <p>Atualizado automaticamente a cada 30 segundos</p>
+    <p>Indicativo: CT1DHR</p>
+  </footer>
 
-    async function buscarDados(field, label) {
-      const url = `https://api.thingspeak.com/channels/${channelID}/fields/${field}.json?results=40`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const labels = data.feeds.map(f => f.created_at.slice(11, 16));
-      const valores = data.feeds.map(f => parseFloat(f[`field${field}`]));
-      return { labels, valores, label };
-    }
-
-    function desenharGrafico(canvasId, dados, cor) {
-      new Chart(document.getElementById(canvasId), {
-        type: 'line',
-        data: {
-          labels: dados.labels,
-          datasets: [{
-            label: dados.label,
-            data: dados.valores,
-            borderColor: cor,
-            backgroundColor: cor + "33",
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: { beginAtZero: false }
-          }
-        }
-      });
-    }
-
-    function converterParaCardinal(graus) {
-      const direcoes = [
-        "Norte", "Norte-Nordeste", "Nordeste", "Este-Nordeste",
-        "Este", "Este-Sudeste", "Sudeste", "Sul-Sudeste",
-        "Sul", "Sul-Sudoeste", "Sudoeste", "Oeste-Sudoeste",
-        "Oeste", "Oeste-Noroeste", "Noroeste", "Norte-Noroeste"
-      ];
-      const indice = Math.round(graus / 22.5) % 16;
-      return direcoes[indice];
-    }
-
-    async function atualizarDirecaoVento() {
-      const url = `https://api.thingspeak.com/channels/${channelID}/fields/${campos.direcao}.json?results=1`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const direcao = parseInt(data.feeds[0][`field${campos.direcao}`]);
-
-      const seta = document.getElementById("arrow");
-      seta.style.transform = `rotate(${direcao}deg) translate(-50%, -50%)`;
-
-      const texto = converterParaCardinal(direcao);
-      document.getElementById("direcaoTexto").textContent = `Direção do vento: ${texto} (${direcao}°)`;
-    }
-
-    async function iniciar() {
-      const temp = await buscarDados(campos.temperatura, "Temperatura (°C)");
-      const chuva = await buscarDados(campos.chuva, "Chuva (mm)");
-      const vento = await buscarDados(campos.vento, "Velocidade do Vento (km/h)");
-
-      desenharGrafico("tempChart", temp, "red");
-      desenharGrafico("chuvaChart", chuva, "blue");
-      desenharGrafico("ventoChart", vento, "green");
-
-      atualizarDirecaoVento();
-      setInterval(atualizarDirecaoVento, 30000);
-    }
-
-    iniciar();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
 
