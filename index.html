@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Estação Meteorológica - António</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+<link rel="stylesheet" href="style.css">
+
+  </style>
+</head>
+<body>
+  <h1>🌤️ Estação Meteorológica - Castelo Branco</h1>
+
+  <canvas id="tempChart" width="600" height="300"></canvas>
+  <canvas id="chuvaChart" width="600" height="300"></canvas>
+  <canvas id="ventoChart" width="600" height="300"></canvas>
+
+  <h2>🧭 Direção do Vento</h2>
+  <div id="compass">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Compass_rose_pale.svg/200px-Compass_rose_pale.svg.png" 
+         style="width:100%; height:100%; position:absolute;">
+    <div id="arrow">
+      <svg width="20" height="100" viewBox="0 0 20 100">
+        <polygon points="10,0 20,100 0,100" fill="red"/>
+      </svg>
+    </div>
+  </div>
+  <p id="direcaoTexto"></p>
+
+  <script>
+    const channelID = "SEU_CHANNEL_ID"; // Substituir pelo teu ID
+    const campos = {
+      temperatura: 1,
+      chuva: 5,
+      vento: 6,
+      direcao: 7
+    };
+
+    async function buscarDados(field, label) {
+      const url = `https://api.thingspeak.com/channels/${channelID}/fields/${field}.json?results=40`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const labels = data.feeds.map(f => f.created_at.slice(11, 16));
+      const valores = data.feeds.map(f => parseFloat(f[`field${field}`]));
+      return { labels, valores, label };
+    }
+
+    function desenharGrafico(canvasId, dados, cor) {
+      new Chart(document.getElementById(canvasId), {
+        type: 'line',
+        data: {
+          labels: dados.labels,
+          datasets: [{
+            label: dados.label,
+            data: dados.valores,
+            borderColor: cor,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: false }
+          }
+        }
+      });
+    }
+
+    function converterParaCardinal(graus) {
+      const direcoes = [
+        "Norte", "Norte-Nordeste", "Nordeste", "Este-Nordeste",
+        "Este", "Este-Sudeste", "Sudeste", "Sul-Sudeste",
+        "Sul", "Sul-Sudoeste", "Sudoeste", "Oeste-Sudoeste",
+        "Oeste", "Oeste-Noroeste", "Noroeste", "Norte-Noroeste"
+      ];
+      const indice = Math.round(graus / 22.5) % 16;
+      return direcoes[indice];
+    }
+
+    async function atualizarDirecaoVento() {
+      const url = `https://api.thingspeak.com/channels/${channelID}/fields/${campos.direcao}.json?results=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const direcao = parseInt(data.feeds[0][`field${campos.direcao}`]);
+
+      const seta = document.getElementById("arrow");
+      seta.style.transform = `rotate(${direcao}deg) translate(-50%, -50%)`;
+
+      const texto = converterParaCardinal(direcao);
+      document.getElementById("direcaoTexto").textContent = `Direção do vento: ${texto} (${direcao}°)`;
+    }
+
+    async function iniciar() {
+      const temp = await buscarDados(campos.temperatura, "Temperatura (°C)");
+      const chuva = await buscarDados(campos.chuva, "Chuva (mm)");
+      const vento = await buscarDados(campos.vento, "Velocidade do Vento (km/h)");
+
+      desenharGrafico("tempChart", temp, "red");
+      desenharGrafico("chuvaChart", chuva, "blue");
+      desenharGrafico("ventoChart", vento, "green");
+
+      atualizarDirecaoVento();
+      setInterval(atualizarDirecaoVento, 30000);
+    }
+
+    iniciar();
+  </script>
+</body>
+</html>

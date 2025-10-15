@@ -1,0 +1,36 @@
+Estação Meteorológica com ESP32-S3 e ThingSpeak
+
+1. Requisitos:
+   - ESP32-S3-WROOM-1
+   - Sensor BME680
+   - Pluviômetro (0.17 mm por pulso)
+   - Anemômetro com direção do vento
+   - Conta gratuita no ThingSpeak
+
+2. Configuração do ThingSpeak:
+   - Crie um canal com os seguintes campos:
+     Field 1: Temperatura
+     Field 2: Humidade
+     Field 3: Pressão
+     Field 4: Qualidade do ar
+     Field 5: Chuva
+     Field 6: Velocidade do vento
+     Field 7: Direção do vento
+
+3. Código para ESP32:
+   - Use o Arduino IDE com bibliotecas: WiFi, HTTPClient, Adafruit_BME680
+   - Envie os dados para ThingSpeak a cada 15 segundos
+
+4. Página Web:
+   - Edite o ficheiro `index.html` e substitua `SEU_CHANNEL_ID` pelo ID do teu canal
+   - Publica a página em GitHub Pages, Netlify ou Vercel
+
+5. Visualização:
+   - A página mostra gráficos de temperatura, chuva e vento
+   - Inclui bússola com seta rotativa e descrição textual da direção do vento
+
+6. Atualizações:
+   - A bússola atualiza a cada 30 segundos
+   - Os gráficos mostram os últimos 40 registos
+
+Boa sorte com o projeto!

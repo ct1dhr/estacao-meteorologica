@@ -1,0 +1,73 @@
+:root {
+  --bg-light: #f4f4f4;
+  --bg-dark: #121212;
+  --text-light: #000;
+  --text-dark: #fff;
+  --card-bg-light: #fff;
+  --card-bg-dark: #1e1e1e;
+  --border-light: #ccc;
+  --border-dark: #444;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: var(--bg-light);
+  color: var(--text-light);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+canvas {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  display: block;
+  background-color: var(--card-bg-light);
+  border: 1px solid var(--border-light);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+#compass {
+  width: 150px;
+  height: 150px;
+  margin: 20px auto;
+  position: relative;
+}
+
+#arrow {
+  width: 0;
+  height: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: bottom center;
+}
+
+#direcaoTexto {
+  text-align: center;
+  font-size: 1.2em;
+  margin-top: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+
+  canvas {
+    background-color: var(--card-bg-dark);
+    border: 1px solid var(--border-dark);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  canvas {
+    max-width: 100%;
+  }
+}
