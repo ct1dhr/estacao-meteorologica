@@ -42,6 +42,7 @@ canvas {
   top: 50%;
   left: 50%;
   transform-origin: bottom center;
+  transition: transform 0.5s ease-in-out;
 }
 
 #direcaoTexto {
@@ -71,3 +72,4 @@ canvas {
     max-width: 100%;
   }
 }
+
