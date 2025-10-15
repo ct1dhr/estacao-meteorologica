@@ -66,11 +66,10 @@ canvas {
 }
 
 #arrow {
-  width: 0;
-  height: 0;
   position: absolute;
   top: 50%;
   left: 50%;
+  transform: translate(-50%, -90%) rotate(0deg);
   transform-origin: bottom center;
   transition: transform 0.5s ease-in-out;
   z-index: 1;
@@ -94,6 +93,7 @@ footer {
     border: 1px solid var(--border-dark);
   }
 }
+
 
 
 
