@@ -59,7 +59,8 @@ async function atualizarDirecaoVento() {
   const direcao = parseInt(data.feeds[0][`field${campos.direcao}`]);
 
   const seta = document.getElementById("arrow");
-  seta.style.transform = `rotate(${direcao}deg) translate(-50%, -50%)`;
+  seta.style.transform = `translate(-50%, -90%) rotate(${direcao}deg)`;
+
 
   const texto = converterParaCardinal(direcao);
   document.getElementById("direcaoTexto").textContent = `Direção do vento: ${texto} (${direcao}°)`;
